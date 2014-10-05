@@ -122,13 +122,11 @@ def get_all_data(token=None):
           'bpm': [],
           'attention': [],
           'sentiment': []}
-    if session['jawbone_token']:
-        res['jb_distances'] = manage_data.get_steps(jawbone, jb_token)
-    if session['twitter_token']:
-        _tweets = manage_data.tw_get_timeline(twitter, tw_token)
-        res.update({'bpm': manage_data.tweets_to_bpm(_tweets),
-                    'attention': manage_data.get_attention(_tweets),
-                    'sentiment': manage_data.get_sent(_tweets)})
+    res['jb_distances'] = manage_data.get_steps(jawbone, jb_token)
+    _tweets = manage_data.tw_get_timeline(twitter, tw_token)
+    res.update({'bpm': manage_data.tweets_to_bpm(_tweets),
+                'attention': manage_data.get_attention(_tweets),
+                'sentiment': manage_data.get_sent(_tweets)})
     return jsonify(res)
 
 
