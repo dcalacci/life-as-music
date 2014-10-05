@@ -1,0 +1,3 @@
+[submodule "data-to-music"]
+	path = data-to-music
+	url = https://github.com/dcalacci/data-to-music.git
