@@ -1,60 +1,85 @@
-from flask import session
-
-from flask import Flask, redirect, url_for, session, request, render_template, flash
+from flask import Flask, session, redirect, request, flash, render_template, session
 from flask_oauth import OAuth
-
-DEBUG = True
-
-FACEBOOK_APP_ID = ' 527044020761840'
-FACEBOOK_APP_SECRET = '1e58e176ee7c845698e37f2e40e1d696'
-
-with open('static/keys.txt', 'rb') as f:
-    TWITTER_KEY, TWITTER_SECRET = [key.strip() for key in f.readlines()]
+import requests
+import pickle
+import manage_data
 
 app = Flask(__name__)
-app.debug = DEBUG
-app.secret_key = 'dev key'
+app.debug = True
+app.secret_key = 'super-secret-text'
+
 oauth = OAuth()
 
+jawbone = oauth.remote_app('jawbone',
+    base_url="https://jawbone.com/",
+    request_token_url=None,
+    access_token_url="/auth/oauth2/token",
+    authorize_url="https://jawbone.com/auth/oauth2/auth",
+    consumer_key="VeXxXXfkIFo",
+    consumer_secret="04e5713a9dea0eaa24d8322ece2037dcb842da66",
+    request_token_params={
+      "scope":"basic_read move_read location_read friends_read mood_read sleep_read meal_read weight_read generic_event_read",
+      "response_type":"code"
+    }
+)
 
 twitter = oauth.remote_app('twitter',
-    base_url='https://api.twitter.com/',
+    base_url='https://api.twitter.com/1.1/',
     request_token_url='https://api.twitter.com/oauth/request_token',
     access_token_url='https://api.twitter.com/oauth/access_token',
     authorize_url='https://api.twitter.com/oauth/authenticate',
-    consumer_key=TWITTER_KEY,
-    consumer_secret=TWITTER_SECRET
+    consumer_key='fYssQs123qUPugFWPONOlGiE7',
+    consumer_secret='VREY11ztVX4y6chAeD0CNie4zTKG5W4IEZy2X8GeMdzzSe000X'
 )
 
 
-
-@app.route('/')
-def index():
-    #return redirect(url_for('login'))
-    return render_template('index.html')
+@app.route('/uplogin')
+def uplogin():
+  return jawbone.authorize(callback="http://localtest.com/up-authorized")
 
 
-@twitter.tokengetter
-def get_twitter_token(token=None):
-    return session.get('twitter_token')
+@app.route("/up-authorized")
+def up_authorized():
+  code = request.args.get('code')
+
+  next_url = "/"
+
+  token_url = "https://jawbone.com/auth/oauth2/token"
+
+  payload = {
+      "client_id":jawbone.consumer_key,
+      "client_secret":jawbone.consumer_secret,
+      "grant_type":"authorization_code",
+      "code":code
+  }
+
+  r = requests.get(token_url, params=payload)
+
+  print r.json()
+
+  session['jawbone_token'] = (
+      r.json()['access_token']
+  )
+
+  flash('You were signed in')
+  return redirect(next_url)
+
+
+@app.route("/jbtoken")
+@jawbone.tokengetter
+def get_jawbone_token(token=None):
+  return session.get('jawbone_token')
 
 
 @app.route('/login')
 def login():
-    print "logging in..."
-    return twitter.authorize(callback=url_for('oauth_authorized',
-        next=request.args.get('next') or request.referrer or None))
+  return twitter.authorize(callback='/oauth-authorized')
 
 
 @app.route('/oauth-authorized')
 @twitter.authorized_handler
 def oauth_authorized(resp):
-    console.log('response:', resp)
-    if session.has_key('twitter_token'):
-        del session['twitter_token']
-
-    print "request: ", request
-    next_url = request.args.get('next') or url_for('index')
+    next_url = request.args.get('next') or '/'
     if resp is None:
         flash(u'You denied the request to sign in.')
         return redirect(next_url)
@@ -63,57 +88,28 @@ def oauth_authorized(resp):
         resp['oauth_token'],
         resp['oauth_token_secret']
     )
+
     session['twitter_user'] = resp['screen_name']
 
     flash('You were signed in as %s' % resp['screen_name'])
     return redirect(next_url)
 
 
-
-# facebook
-
-
-
-# facebook = oauth.remote_app('facebook',
-#     base_url='https://graph.facebook.com/',
-#     request_token_url=None,
-#     access_token_url='/oauth/access_token',
-#     authorize_url='https://www.facebook.com/dialog/oauth',
-#     consumer_key=FACEBOOK_APP_ID,
-#     consumer_secret=FACEBOOK_APP_SECRET,
-#     request_token_params={'scope': 'email'}
-# )
+@app.route("/timeline")
+def get_timeline(token=None):
+    manage_data.tw_get_timeline(twitter, token)
 
 
-# @app.route('/login')
-# def login():
-#     return facebook.authorize(callback=url_for('facebook_authorized',
-#         next=request.args.get('next') or request.referrer or None,
-#         _external=True))
+@app.route("/twtoken")
+@twitter.tokengetter
+def get_twitter_token(token=None):
+    return session.get('twitter_token')
 
 
+@app.route('/')
+def index():
+    #return redirect(url_for('login'))
+    return render_template('index.html')
 
-
-
-# @app.route('/login/authorized')
-# @facebook.authorized_handler
-# def facebook_authorized(resp):
-#     if resp is None:
-#         return 'Access denied: reason=%s error=%s' % (
-#             request.args['error_reason'],
-#             request.args['error_description']
-#         )
-#     session['oauth_token'] = (resp['access_token'], '')
-#     me = facebook.get('/me')
-#     content = 'Logged in as id=%s name=%s redirect=%s' % \
-#               (me.data['id'], me.data['name'], request.args.get('next'))
-#     return render_template('index.html', content=content)
-
-
-# @facebook.tokengetter
-# def get_facebook_oauth_token():
-#     return session.get('oauth_token')
-
-
-if __name__ == '__main__':
-    app.run()
+if __name__ == "__main__":
+  app.run()
