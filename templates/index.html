@@ -6,7 +6,8 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
-  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+  <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
   <script type="text/javascript">
     $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     $STATIC_DIR = "{{url_for('static', filename="")}}";
@@ -17,11 +18,26 @@
   <div class="pure-menu pure-menu-open pure-menu-horizontal">
     <a href="/" class="pure-menu-heading">Life As Music</a>
     <ul>
-      <li><a href="/login">Twitter Login</a></li>
-      <li><a href="/uplogin">Jawbone Up Login</a></li>
+      <li><a href="/about">About</a></li>
     </ul>
   </div>
-  <p>{{content}}</p>
+  <div id="overlay">
+    <h1 class="main-title">life-as-music</h1>
+    <p class="description">
+      consuming > being consumed.
+    </p>
+    <p class="description">
+      Hear algorithmic beats generated from your daily generated data.
+    </p>
+    <p class="description">
+      Works best with Jawbone UP and Twitter.
+    </p>
+    <div id="buttons">
+      <a id="jawbone-login" class="pure-button btn" href="/uplogin">Jawbone</a>
+      <a id="twitter-login" class="pure-button btn" href="/login">Twitter</a>
+    </div>
+  </div>
+  <canvas id="c"></canvas>
 
   <!-- external javascript -->
 
@@ -30,6 +46,6 @@
   <script src="{{url_for('static', filename='js/external/underscore.js')}}"></script>
 
   <!-- in-house -->
-  <script src="{{url_for('static', filename='js/get_profile_data.js')}}"></script>
+  <script src="{{url_for('static', filename='js/wave.js')}}"></script>
 </body>
 </html>

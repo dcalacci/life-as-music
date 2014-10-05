@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-from flask import Flask, session, redirect, request, flash, render_template, session
-=======
 from flask import Flask, session, redirect, request, flash, render_template, session, jsonify
->>>>>>> 36a503cf8ab9f757d5034f4d3557891fa26ff9c8
 from flask_oauth import OAuth
 import requests
 import pickle
@@ -37,40 +33,8 @@ twitter = oauth.remote_app('twitter',
 )
 
 
-@app.route('/uplogin')
-def uplogin():
-  return jawbone.authorize(callback="http://localtest.com/up-authorized")
 
 
-<<<<<<< HEAD
-@app.route("/up-authorized")
-def up_authorized():
-  code = request.args.get('code')
-
-  next_url = "/"
-
-  token_url = "https://jawbone.com/auth/oauth2/token"
-
-  payload = {
-      "client_id":jawbone.consumer_key,
-      "client_secret":jawbone.consumer_secret,
-      "grant_type":"authorization_code",
-      "code":code
-  }
-
-  r = requests.get(token_url, params=payload)
-
-  print r.json()
-
-  session['jawbone_token'] = (
-      r.json()['access_token']
-  )
-
-  flash('You were signed in')
-  return redirect(next_url)
-
-
-=======
 @app.route('/uplogin')
 def uplogin():
   return jawbone.authorize(callback="http://localtest.com/up-authorized")
@@ -103,7 +67,6 @@ def up_authorized():
   return redirect(next_url)
 
 
->>>>>>> 36a503cf8ab9f757d5034f4d3557891fa26ff9c8
 @app.route("/jbtoken")
 @jawbone.tokengetter
 def get_jawbone_token(token=None):
@@ -137,23 +100,13 @@ def oauth_authorized(resp):
 @app.route("/timeline")
 def get_timeline(token=None):
     manage_data.tw_get_timeline(twitter, token)
-<<<<<<< HEAD
 
-=======
->>>>>>> 36a503cf8ab9f757d5034f4d3557891fa26ff9c8
 
 @app.route("/twtoken")
 @twitter.tokengetter
 def get_twitter_token(token=None):
     return session.get('twitter_token')
 
-@app.route("/twtoken")
-@twitter.tokengetter
-def get_twitter_token(token=None):
-    return session.get('twitter_token')
-
-<<<<<<< HEAD
-=======
 
 @app.route("/jb_data")
 def jb_data(token=None):
@@ -185,7 +138,6 @@ def get_all_data(token=None):
 #     return manage_data.idol_sentiment("I'm angry.")
 
 
->>>>>>> 36a503cf8ab9f757d5034f4d3557891fa26ff9c8
 @app.route('/')
 def index():
     #return redirect(url_for('login'))

@@ -1,0 +1,49 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    background-color: rgba(73, 73, 73, 0.73);
+}
+
+#overlay
+{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background-color: rgba(223, 223, 223, 0.73);
+    z-index: 10;
+
+    height: 40%;
+    margin-top: -200px;
+
+    width: 50%;
+    margin-left: -300px;
+}
+
+.description {
+    text-align: center;
+}
+
+.main-title {
+    text-align: center;
+    font-weight: 200;
+    font-size: 3em;
+}
+
+#buttons {
+    width: 30%;
+    margin: 0 auto;
+}
+.btn {
+    width: 30%;
+}
+
+canvas {
+    position: absolute;
+    bottom: 0;
+    z-index: 4;
+    height: 100%;
+    width: 100%;
+    display: block; 
+}
