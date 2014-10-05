@@ -1,4 +1,4 @@
-from flask import Flask, session, redirect, request, flash, render_template, session
+from flask import Flask, session, redirect, request, flash, render_template, session, jsonify
 from flask_oauth import OAuth
 import requests
 import pickle
@@ -33,6 +33,8 @@ twitter = oauth.remote_app('twitter',
 )
 
 
+
+
 @app.route('/uplogin')
 def uplogin():
   return jawbone.authorize(callback="http://localtest.com/up-authorized")
@@ -41,6 +43,8 @@ def uplogin():
 @app.route("/up-authorized")
 def up_authorized():
   code = request.args.get('code')
+
+  print ">>>authorizing..."
 
   next_url = "/"
 
@@ -54,8 +58,6 @@ def up_authorized():
   }
 
   r = requests.get(token_url, params=payload)
-
-  print r.json()
 
   session['jawbone_token'] = (
       r.json()['access_token']
@@ -104,6 +106,36 @@ def get_timeline(token=None):
 @twitter.tokengetter
 def get_twitter_token(token=None):
     return session.get('twitter_token')
+
+
+@app.route("/jb_data")
+def jb_data(token=None):
+    token = get_jawbone_token()
+    print "token:", token
+    return jsonify({'distances': manage_data.get_steps(jawbone, token)})
+
+@app.route('/all_data')
+def get_all_data(token=None):
+    jb_token = get_jawbone_token()
+    tw_token = get_twitter_token()
+    res ={'jb_distances': [],
+          'bpm': [],
+          'attention': [],
+          'sentiment': []}
+    if session['jawbone_token']:
+        res['jb_distances'] = manage_data.get_steps(jawbone, jb_token)
+    if session['twitter_token']:
+        _tweets = manage_data.tw_get_timeline(twitter, tw_token)
+        res.update({'bpm': manage_data.tweets_to_bpm(_tweets),
+                    'attention': manage_data.get_attention(_tweets),
+                    'sentiment': manage_data.get_sent(_tweets)})
+    return jsonify(res)
+
+
+# idol route
+# @app.route('/get_sent')
+# def sent():
+#     return manage_data.idol_sentiment("I'm angry.")
 
 
 @app.route('/')
