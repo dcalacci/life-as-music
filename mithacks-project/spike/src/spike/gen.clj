@@ -1,3 +1,7 @@
+(ns spike.gen)
+
+(use '[overtone.core])
+
 ;;; BPM of song
 ;; single integer value 80 - 240
 (def test-bpm 120)
